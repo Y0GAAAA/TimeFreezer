@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Threading;
+using System.Data;
+using System.Timers;
 
 using Win32Time;
 
@@ -11,9 +12,7 @@ namespace TimeFreezer
 
         private static TimeService timeService { get; } = new TimeService();
 
-        private static bool freezeDate = false;
-
-        private const int TIME_RESET_DELAY = 500;
+        private static int datePatchInterval = 500;
 
         static void Main(string[] args)
         {
@@ -25,24 +24,19 @@ namespace TimeFreezer
             timeService.Stop();
             Console.WriteLine("Time updating service stopped.");
 
-            freezeDate = true;
+            Timer updateFakeDateTimer = new Timer();
 
-            Thread setFakeDateThread = new Thread(() => SetFakeDateLoop(fakeDate));
+            updateFakeDateTimer.Elapsed += (e, s) => SetDate(fakeDate);
 
-            setFakeDateThread.IsBackground = true;
-            setFakeDateThread.Start();
+            updateFakeDateTimer.AutoReset = true;
+            updateFakeDateTimer.Interval = datePatchInterval;
+
+            updateFakeDateTimer.Start();
 
             Console.WriteLine("Press any key to resynchronize time...");
             Console.ReadKey(true);
 
-            freezeDate = false;
-
-            while (setFakeDateThread.IsAlive)
-            {
-
-                Thread.Sleep(TIME_RESET_DELAY / 2);
-
-            }
+            updateFakeDateTimer.Stop();
 
             timeService.Start();
             Console.WriteLine("Time synchronizer back up.");
@@ -59,17 +53,10 @@ namespace TimeFreezer
 
         }
 
-        private static void SetFakeDateLoop(TimeChanger.SYSTEMTIME fakeDate)
+        private static void SetDate(TimeChanger.SYSTEMTIME fakeDate)
         {
 
-            while (freezeDate)
-            {
-
-                TimeChanger.SetSystemTime(ref fakeDate);
-
-                Thread.Sleep(TIME_RESET_DELAY);
-
-            }
+            TimeChanger.SetSystemTime(ref fakeDate);
 
         }
 
