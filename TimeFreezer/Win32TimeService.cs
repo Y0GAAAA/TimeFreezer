@@ -57,6 +57,9 @@ namespace Win32Time
         public void Resync()
         {
 
+            if (!IsRunning)
+                return;
+
             ProcessStartInfo starter = GetInvisibleStarter();
 
             starter.FileName = TimeProcessFileName;
