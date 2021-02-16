@@ -12,7 +12,7 @@ namespace TimeFreezer
 
         private static TimeService timeService { get; } = new TimeService();
 
-        private static int datePatchInterval = 500;
+        private const int DATE_PATCH_INTERVAL = 500;
 
         static void Main(string[] args)
         {
@@ -29,7 +29,7 @@ namespace TimeFreezer
             updateFakeDateTimer.Elapsed += (e, s) => SetDate(fakeDate);
 
             updateFakeDateTimer.AutoReset = true;
-            updateFakeDateTimer.Interval = datePatchInterval;
+            updateFakeDateTimer.Interval = DATE_PATCH_INTERVAL;
 
             updateFakeDateTimer.Start();
 
